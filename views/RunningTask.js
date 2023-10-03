@@ -12,8 +12,20 @@ import { useDb } from "../misc/dbAPIContext";
 import { useFocusEffect } from "@react-navigation/native";
 import CountDown from "react-native-countdown-component";
 import { AppState } from "react-native";
+import { useMyAppState } from "../misc/MyAppProvider";
 
 export const RunningTask = ({ navigation }) => {
+  const { MyAppState, dispatch } = useMyAppState();
+  // const { MyAppState, dispatch, updateDbState, updateCurrentTask } =
+  //   useMyAppState();
+  // const {
+  //   isRunning,
+  //   dbState,
+  //   currentTaskIndex,
+  //   currentTaskStart,
+  //   currentTaskEnd,
+  // } = MyAppState;
+  const { testVariable } = MyAppState;
   const [focusVisible, setFocusVisible] = React.useState(false);
 
   useFocusEffect(
@@ -269,6 +281,7 @@ export const RunningTask = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View>
+        {/* <Text style={{ fontSize: 24 }}>{testVariable}</Text> */}
         <CountDown
           until={state.timeLeft}
           onFinish={() => alert("finished")}
@@ -277,9 +290,9 @@ export const RunningTask = ({ navigation }) => {
           running={false}
           timeToShow={state.timeLeft > 3600 ? ["H", "M", "S"] : ["M", "S"]}
         />
-        <Text style={{ fontSize: 24 }}>
+        {/* <Text style={{ fontSize: 24 }}>
           {!state.noTasksLeft ? "lol" : dbState[currentTaskIndex].name}
-        </Text>
+        </Text> */}
         <Text>
           timeLeft: {typeof state.timeLeft} {JSON.stringify(state.timeLeft)}
         </Text>

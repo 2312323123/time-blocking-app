@@ -10,7 +10,7 @@ import { _toTimeString } from "../misc/dbAPI";
 import { useDb } from "../misc/dbAPIContext";
 
 const TaskItem = ({ task, index, navigation }) => {
-  const { dbState, currentTaskIndex, isRunning } = useDb();
+  const { currentTaskIndex, isRunning } = useDb();
 
   return (
     <View style={styles.task}>
