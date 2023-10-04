@@ -7,10 +7,11 @@ import {
   Button,
 } from "react-native";
 import { _toTimeString } from "../misc/dbAPI";
-import { useDb } from "../misc/dbAPIContext";
+import { useMyAppState } from "../misc/MyAppProvider";
 
 const TaskItem = ({ task, index, navigation }) => {
-  const { currentTaskIndex, isRunning } = useDb();
+  const { MyAppState } = useMyAppState();
+  const { isRunning, currentTaskIndex } = MyAppState;
 
   return (
     <View style={styles.task}>

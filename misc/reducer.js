@@ -2,6 +2,7 @@ export const initialState = {
   alive: false,
   testVariable: "not hehe",
   // from refactor:
+  noTasksLeftForToday: false,
   isRunning: false,
   dbState: undefined,
   currentTaskIndex: undefined,
@@ -32,8 +33,14 @@ export const reducer = (state, action) => {
         testVariable: action.payload,
       };
 
+    case "RERENDER_DB_STATE":
+      return {
+        ...state,
+        dbState: state.dbState,
+      };
     // from refactor:
     case "UPDATE_DB_STATE":
+      console.log("reducer UPDATE_DB_STATE");
       return {
         ...state,
         dbState: action.payload,
@@ -76,42 +83,13 @@ export const reducer = (state, action) => {
         isRunning: action.payload,
       };
 
-    // random not used
-    case "UPDATE_CURRENT_TASK":
+    // newer
+    case "SET_NO_TASKS_LEFT_FOR_TODAY":
       return {
         ...state,
-        currentTask: action.payload,
+        noTasksLeftForToday: true,
       };
-    case "UPDATE_CURRENT_TASK_INDEX":
-      return {
-        ...state,
-        currentTaskIndex: action.payload,
-      };
-    case "UPDATE_CURRENT_TASK_START":
-      return {
-        ...state,
-        currentTaskStart: action.payload,
-      };
-    case "UPDATE_CURRENT_TASK_END":
-      return {
-        ...state,
-        currentTaskEnd: action.payload,
-      };
-    case "UPDATE_DB_STATE":
-      return {
-        ...state,
-        dbState: action.payload,
-      };
-    case "UPDATE_IS_RUNNING":
-      return {
-        ...state,
-        isRunning: action.payload,
-      };
-    case "UPDATE_IS_DAY_SET":
-      return {
-        ...state,
-        isDaySet: action.payload,
-      };
+
     default:
       return state;
   }

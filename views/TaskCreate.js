@@ -12,11 +12,11 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { _createTask } from "../misc/dbAPI";
-import { useDb } from "../misc/dbAPIContext";
+import { useMyAppState } from "../misc/MyAppProvider";
 
 export const TaskCreate = ({ navigation }) => {
   // rerendering related stuff
-  const { updateDbState } = useDb();
+  const { updateDbState } = useMyAppState();
 
   // text input stuff
   const [text, setText] = useState("");

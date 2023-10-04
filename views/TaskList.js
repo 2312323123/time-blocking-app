@@ -1,45 +1,18 @@
-import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Button,
-  TouchableOpacity,
-  TextInput,
-  Platform,
-  SafeAreaView,
-} from "react-native";
-// import {
-//   DatePickerIOS,
-//   DatePickerAndroid,
-// } from "@react-native-community/datetimepicker";
-import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { _retrieveTaskList, _toTimeString } from "../misc/dbAPI";
 import { TaskListList } from "../components/TaskListList";
-import { useDb } from "../misc/dbAPIContext";
+import { useMyAppState } from "../misc/MyAppProvider";
 
 export const TaskList = ({ navigation, route }) => {
-  const { dbState } = useDb();
-
-  const [tasklist, setTasklist] = React.useState([]);
-
-  React.useEffect(() => {
-    async function DoAsyncStuff() {
-      const tasks = await _retrieveTaskList();
-      setTasklist(tasks);
-    }
-    DoAsyncStuff();
-  }, [dbState]);
-
-  const addTask = () => {
-    console.log("addTask has been called");
-  };
+  const {
+    MyAppState: { dbState },
+  } = useMyAppState();
 
   return (
     <>
       <Text>This is {route.params.name}'s profile</Text>
 
-      <TaskListList tasklist={tasklist} navigation={navigation} />
+      <TaskListList tasklist={dbState} navigation={navigation} />
 
       <TouchableOpacity
         style={styles.addButton}

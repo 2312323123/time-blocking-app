@@ -1,5 +1,5 @@
 // purpose of this is to encapsulate logic of detecting whether the context has been lost and if so, call callback to recover it
-import { useContext, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { AppState } from "react-native";
 
 export const useAppStateEffect = (callback, ...dependencies) => {

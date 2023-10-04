@@ -8,23 +8,21 @@ import {
   _editTask,
   _setCurrentTaskInfo,
 } from "../misc/dbAPI";
-import { useDb } from "../misc/dbAPIContext";
 import { useFocusEffect } from "@react-navigation/native";
 import CountDown from "react-native-countdown-component";
 import { AppState } from "react-native";
 import { useMyAppState } from "../misc/MyAppProvider";
 
 export const RunningTask = ({ navigation }) => {
-  const { MyAppState, dispatch } = useMyAppState();
-  // const { MyAppState, dispatch, updateDbState, updateCurrentTask } =
-  //   useMyAppState();
-  // const {
-  //   isRunning,
-  //   dbState,
-  //   currentTaskIndex,
-  //   currentTaskStart,
-  //   currentTaskEnd,
-  // } = MyAppState;
+  const { MyAppState, dispatch, updateDbState, updateCurrentTask } =
+    useMyAppState();
+  const {
+    isRunning,
+    dbState,
+    currentTaskIndex,
+    currentTaskStart,
+    currentTaskEnd,
+  } = MyAppState;
   const { testVariable } = MyAppState;
   const [focusVisible, setFocusVisible] = React.useState(false);
 
@@ -39,20 +37,7 @@ export const RunningTask = ({ navigation }) => {
     }, [])
   );
 
-  const {
-    dbState,
-    currentTaskIndex,
-    currentTaskStart,
-    currentTaskEnd,
-    updateCurrentTask,
-    updateDbState,
-    isRunning,
-    setIsRunning,
-  } = useDb();
-
   let intervalRef = React.useRef(null);
-
-  const [debug, setDebug] = React.useState("debug");
 
   const appState = useRef(AppState.currentState);
 
@@ -128,14 +113,14 @@ export const RunningTask = ({ navigation }) => {
         timeLeft: undefined,
       });
       if (isRunning) {
-        setIsRunning(false);
+        dispatch({ type: "SET_IS_RUNNING", payload: false });
       }
     } else if (new Date() < currentTaskStart) {
       console.log("333333333333333333");
       // in this case we just want the next task (not running) screen to be displayed
       // TODO: make sure isRunning is set to false
       if (isRunning) {
-        setIsRunning(false);
+        dispatch({ type: "SET_IS_RUNNING", payload: false });
       }
     } else if (
       typeof currentTaskIndex === "undefined" ||
@@ -293,24 +278,12 @@ export const RunningTask = ({ navigation }) => {
         {/* <Text style={{ fontSize: 24 }}>
           {!state.noTasksLeft ? "lol" : dbState[currentTaskIndex].name}
         </Text> */}
-        <Text>
-          timeLeft: {typeof state.timeLeft} {JSON.stringify(state.timeLeft)}
-        </Text>
-        <Text> Debug text: {debug}</Text>
-        <Button
-          title="Stop intervalRef.current"
-          onPress={() => clearInterval(intervalRef.current)}
-        />
-        <Button
-          title="Task List"
-          onPress={() => navigation.navigate("Task List", { name: "Jane" })}
-        />
-        <Button title="console log" onPress={() => console.log("hello")} />
+        <Text>timeLeft: {JSON.stringify(state.timeLeft)}</Text>
         <Text>noTasksLeft: {state.noTasksLeft.toString()}</Text>
         <Text>isRunning: {isRunning.toString()}</Text>
-        <Text>{new Date().toString()}</Text>
       </View>
 
+      <Button title="console log" onPress={() => console.log("hello")} />
       <TouchableOpacity
         style={styles.taskListButton}
         onPress={() => navigation.navigate("Task List", { name: "Jane" })}

@@ -17,20 +17,12 @@ import {
   _deleteTask,
   _deleteCurrentTaskInfo,
 } from "../misc/dbAPI";
-import { useDb } from "../misc/dbAPIContext";
+import { useMyAppState } from "../misc/MyAppProvider";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 export const TaskEdit = ({ navigation, route }) => {
-  const {
-    dbState,
-    currentTaskIndex,
-    currentTaskStart,
-    currentTaskEnd,
-    updateCurrentTask,
-    updateDbState, // rerendering related
-    isRunning,
-    setIsRunning,
-  } = useDb();
+  const { MyAppState, updateDbState, updateCurrentTask } = useMyAppState();
+  const { isRunning } = MyAppState;
 
   const { index, ...task } = route.params;
 
@@ -87,8 +79,7 @@ export const TaskEdit = ({ navigation, route }) => {
       }
 
       const endDate = new Date(date);
-      endDate.setMinutes(endDate.getMinutes() + duration);
-      console.log("duration: " + duration);
+      endDate.setMinutes(endDate.getMinutes() + parseInt(duration));
       if (
         date.getDate() !== endDate.getDate() ||
         date.getMonth() !== endDate.getMonth() ||
