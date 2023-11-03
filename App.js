@@ -7,6 +7,7 @@ import { TaskList } from "./views/TaskList";
 import { TaskCreate } from "./views/TaskCreate";
 import { TaskEdit } from "./views/TaskEdit";
 import { MyAppProvider } from "./misc/MyAppProvider";
+import { NewRunningTask } from "./views/NewRunningTask";
 
 const Stack = createNativeStackNavigator();
 
@@ -26,6 +27,7 @@ export default function App() {
           <Stack.Group
             screenOptions={{ headerStyle: { backgroundColor: "darkgreen" } }}
           >
+            <Stack.Screen name="New Running Task" component={NewRunningTask} />
             <Stack.Screen
               name="Home"
               component={RunningTask}

@@ -34,7 +34,7 @@ const TaskItem = ({ task, index, navigation }) => {
           {/* <ActivityIndicator /> */}
         </Text>
       )}
-
+      <Text>id: {index}</Text>
       <Button
         title="✎"
         onPress={() =>

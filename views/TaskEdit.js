@@ -12,17 +12,41 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {
-  _editTask,
+  // _editTask,
   _getTaskByIndex,
-  _deleteTask,
+  // _deleteTask,
   _deleteCurrentTaskInfo,
 } from "../misc/dbAPI";
 import { useMyAppState } from "../misc/MyAppProvider";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const TaskEdit = ({ navigation, route }) => {
-  const { MyAppState, updateDbState, updateCurrentTask } = useMyAppState();
+  const { MyAppState, updateTask, deleteTask } = useMyAppState();
   const { isRunning } = MyAppState;
+
+  useFocusEffect(() => {
+    console.log("TaskEdit focused");
+    // mainLoop();
+
+    // timerRef.current = setInterval(() => {
+    //   if (typeof currentTaskEnd !== "undefined" || currentTaskEnd !== null) {
+    //     if (isRunning) {
+    //       setTimeLeft(parseInt((currentTaskEnd - new Date()) / 1000));
+    //     } else {
+    //       if (!noTasksLeftForToday) {
+    //         setTimeLeft(parseInt((currentTaskStart - new Date()) / 1000));
+    //       }
+    //     }
+    //   }
+    //   mainLoop();
+    // }, 240);
+
+    return () => {
+      console.log("TaskEdit unfocused");
+      // clearInterval(timerRef.current);
+    };
+  });
 
   const { index, ...task } = route.params;
 
@@ -67,19 +91,24 @@ export const TaskEdit = ({ navigation, route }) => {
 
   // creating the task
   const handleSubmit = async () => {
-    // Do something with the input text, for example, send it to an API or perform an action
-    if (text && date && duration) {
+    let parsedDuration = parseInt(duration);
+    if (
+      typeof text !== "undefined" &&
+      text !== "" &&
+      typeof date !== "undefined" &&
+      typeof parsedDuration !== "undefined"
+    ) {
       // console.log("Input Text:", text);
       // console.log("Input Start time:", date);
       // console.log("Input Duration:", duration);
 
-      if (duration <= 0) {
+      if (parsedDuration <= 0) {
         Alert.alert("Duration must be a positive integer");
         return;
       }
 
       const endDate = new Date(date);
-      endDate.setMinutes(endDate.getMinutes() + parseInt(duration));
+      endDate.setMinutes(endDate.getMinutes() + parsedDuration);
       if (
         date.getDate() !== endDate.getDate() ||
         date.getMonth() !== endDate.getMonth() ||
@@ -89,48 +118,35 @@ export const TaskEdit = ({ navigation, route }) => {
         return;
       }
 
-      // dbState,
-      // currentTaskIndex,
-      // currentTaskStart,
-      // currentTaskEnd,
-      // updateCurrentTask,
-      // updateDbState, // rerendering related
-      // isRunning,
-      // setIsRunning,
-
-      await _editTask(
-        parseInt(index),
-        text,
-        date.getHours(),
-        date.getMinutes(),
-        parseInt(duration),
-        completed
-      );
-
-      // if better than the current task, update current task (isRunning is false, and it's viable)
-      const compareDate = new Date();
-      compareDate.setHours(date.getHours(), date.getMinutes(), 0, 0);
-      if (!completed && isRunning === false && compareDate < new Date()) {
-        compareDate.setMinutes(compareDate.getMinutes() + parseInt(duration));
-        if (compareDate > new Date()) {
-          await _deleteCurrentTaskInfo();
-          await updateCurrentTask();
-        }
-      }
-
       // await _editTask(
-      //   currentTaskIndex,
-      //   currentTask.name,
-      //   currentTask.time_hours,
-      //   currentTask.time_minutes,
-      //   currentTask.duration,
-      //   true
+      //   parseInt(index),
+      //   text,
+      //   date.getHours(),
+      //   date.getMinutes(),
+      //   parseInt(duration),
+      //   completed
       // );
-      // await _deleteCurrentTaskInfo();
-      // await updateCurrentTask();
-      // await updateDbState();
 
-      await updateDbState(); // rerendering-related
+      // // if better than the current task, update current task (isRunning is false, and it's viable)
+      // const compareDate = new Date();
+      // compareDate.setHours(date.getHours(), date.getMinutes(), 0, 0);
+      // if (!completed && isRunning === false && compareDate < new Date()) {
+      //   compareDate.setMinutes(compareDate.getMinutes() + parseInt(duration));
+      //   if (compareDate > new Date()) {
+      //     await _deleteCurrentTaskInfo();
+      //   }
+      // }
+
+      const updatedTask = {
+        index: parseInt(index),
+        newName: text,
+        time_hours: date.getHours(),
+        time_minutes: date.getMinutes(),
+        duration: parsedDuration,
+        done: completed,
+      };
+
+      await updateTask(updatedTask);
 
       // navigation.navigate("Task List");
       navigation.navigate("Task List", {
@@ -155,9 +171,8 @@ export const TaskEdit = ({ navigation, route }) => {
           onPress: async () => {
             // Perform deletion logic here
 
-            await _deleteTask(parseInt(index));
-
-            await updateDbState(); // rerendering-related
+            // await _deleteTask(parseInt(index));
+            await deleteTask(parseInt(index));
 
             navigation.navigate("Task List", {
               name: "Jane",
@@ -229,6 +244,7 @@ export const TaskEdit = ({ navigation, route }) => {
           onPress={handleDeleteTaskSubmit}
         >
           <Text style={styles.deleteButtonText}>Delete task</Text>
+          <Text style={styles.deleteButtonText}>Index: {index}</Text>
         </TouchableOpacity>
 
         {show && (

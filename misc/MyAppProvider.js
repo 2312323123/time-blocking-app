@@ -1,52 +1,22 @@
-import React, { createContext, useContext, useEffect, useReducer } from "react";
+import React, { createContext, useContext } from "react";
 import { useAppStateEffect } from "./useAppStateEffect";
-import { initialState, reducer } from "./reducer";
-import { _retrieveTaskList, _getCurrentTaskInfo } from "./dbAPI";
+import { useMyAppProviderMethods } from "./useMyAppProviderMethods";
 
 const MyAppContext = createContext(null);
 
 export const MyAppProvider = ({ children }) => {
-  const [MyAppState, dispatch] = useReducer(reducer, initialState);
-
-  // from refactor:
-  const updateDbState = async () => {
-    const tasks = await _retrieveTaskList();
-    dispatch({ type: "UPDATE_DB_STATE", payload: tasks });
-  };
-
-  const updateCurrentTask = async () => {
-    const currentTaskInfo = await _getCurrentTaskInfo();
-    dispatch({ type: "UPDATE_CURRENTTASK", payload: currentTaskInfo });
-  };
-
-  // from refactor + legacy
-  // dbState and currentTaskIndex initialization stuff
-  useEffect(() => {
-    const DoAsyncStuff = async () => {
-      await updateDbState();
-      await updateCurrentTask();
-    };
-    DoAsyncStuff();
-  }, []);
-
-  // newer, callback to know whether update finished in the next main loop cycle
-  const runTask = async (callback, index) => {
-    if (callback) {
-      callback();
-    }
-  };
-
-  const taskFinished = async (callback, index) => {
-    if (callback) {
-      callback();
-    }
-  };
-
-  const runNextTask = async (callback) => {
-    if (callback) {
-      callback();
-    }
-  };
+  const {
+    MyAppState,
+    dispatch,
+    _runTask,
+    _taskFinished,
+    _runNextTask,
+    _nextTaskObsolete,
+    checkIfNewDayAndPrepareEverythingAccordingly,
+    createTask,
+    updateTask,
+    deleteTask,
+  } = useMyAppProviderMethods();
 
   // after turning on, etc.
   const checkAliveAndInCaseNotDoNecessaryStuff = async () => {
@@ -54,19 +24,53 @@ export const MyAppProvider = ({ children }) => {
       // all the stuff needed to recover context using database goes here
       console.log("ded, reviving...");
 
-      const tasks = await _retrieveTaskList();
-      dispatch({ type: "UPDATE_DB_STATE", payload: tasks });
+      await checkIfNewDayAndPrepareEverythingAccordingly();
+    }
+  };
+  useAppStateEffect(checkAliveAndInCaseNotDoNecessaryStuff, MyAppState.alive);
 
-      // necessary at the end
-      dispatch({ type: "UPDATE_ALIVE" });
+  // newer, callback to know whether update finished in the next main loop cycle
+  const runTask = async (callback, index, finishCurrentTask) => {
+    await _runTask(index, finishCurrentTask);
+    if (callback) {
+      callback();
     }
   };
 
-  useAppStateEffect(checkAliveAndInCaseNotDoNecessaryStuff, MyAppState.alive);
+  const taskFinished = async (callback, index) => {
+    await _taskFinished(index);
+    if (callback) {
+      callback();
+    }
+  };
+
+  const runNextTask = async (callback) => {
+    await _runNextTask(index);
+    if (callback) {
+      callback();
+    }
+  };
+
+  const nextTaskObsolete = async (callback) => {
+    await _nextTaskObsolete();
+    if (callback) {
+      callback();
+    }
+  };
 
   return (
     <MyAppContext.Provider
-      value={{ MyAppState, dispatch, updateDbState, updateCurrentTask }}
+      value={{
+        MyAppState,
+        dispatch,
+        runTask, // new refactor
+        taskFinished, // new refactor
+        runNextTask, // new refactor
+        nextTaskObsolete, // new refactor
+        createTask,
+        updateTask,
+        deleteTask,
+      }}
     >
       {children}
     </MyAppContext.Provider>

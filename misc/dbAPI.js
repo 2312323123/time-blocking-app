@@ -71,90 +71,90 @@ const _getTaskByIndex = async (index) => {
   }
 };
 
-const _editTask = async (
-  index,
-  newName,
-  time_hours,
-  time_minutes,
-  duration,
-  done
-) => {
-  try {
-    const tasks = await _retrieveTaskList();
-    if (typeof time_hours !== "number") {
-      time_hours = 0;
-    }
-    if (typeof time_minutes !== "number") {
-      time_minutes = 0;
-    }
-    if (typeof duration !== "number") {
-      duration = 0;
-    }
-    if (time_hours < 0 || time_hours > 23) {
-      time_hours = 0;
-    }
-    if (time_minutes < 0 || time_minutes > 59) {
-      time_minutes = 0;
-    }
-    if (typeof done !== "boolean") {
-      done = false;
-    }
+// const _editTask = async (
+//   index,
+//   newName,
+//   time_hours,
+//   time_minutes,
+//   duration,
+//   done
+// ) => {
+//   try {
+//     const tasks = await _retrieveTaskList();
+//     if (typeof time_hours !== "number") {
+//       time_hours = 0;
+//     }
+//     if (typeof time_minutes !== "number") {
+//       time_minutes = 0;
+//     }
+//     if (typeof duration !== "number") {
+//       duration = 0;
+//     }
+//     if (time_hours < 0 || time_hours > 23) {
+//       time_hours = 0;
+//     }
+//     if (time_minutes < 0 || time_minutes > 59) {
+//       time_minutes = 0;
+//     }
+//     if (typeof done !== "boolean") {
+//       done = false;
+//     }
 
-    const myTask = tasks[index];
-    if (typeof myTask !== "undefined" && myTask !== null) {
-      myTask.name = newName;
-      myTask.time_hours = time_hours;
-      myTask.time_minutes = time_minutes;
-      myTask.duration = duration;
-      myTask.done = done;
-    }
+//     const myTask = tasks[index];
+//     if (typeof myTask !== "undefined" && myTask !== null) {
+//       myTask.name = newName;
+//       myTask.time_hours = time_hours;
+//       myTask.time_minutes = time_minutes;
+//       myTask.duration = duration;
+//       myTask.done = done;
+//     }
 
-    await _sortTaskList();
+//     await _sortTaskList();
 
-    await AsyncStorage.setItem("TASKS", JSON.stringify(tasks));
-  } catch (error) {
-    // Error saving data
-    console.log("_editTask error");
-  }
-};
+//     await AsyncStorage.setItem("TASKS", JSON.stringify(tasks));
+//   } catch (error) {
+//     // Error saving data
+//     console.log("_editTask error");
+//   }
+// };
 
-const _createTask = async (
-  name,
-  time_hours,
-  time_minutes,
-  duration,
-  done = false
-) => {
-  try {
-    const tasks = await _retrieveTaskList();
-    if (typeof time_hours !== "number") {
-      time_hours = 0;
-    }
-    if (typeof time_minutes !== "number") {
-      time_minutes = 0;
-    }
-    if (typeof duration !== "number") {
-      duration = 0;
-    }
-    if (time_hours < 0 || time_hours > 23) {
-      time_hours = 0;
-    }
-    if (time_minutes < 0 || time_minutes > 59) {
-      time_minutes = 0;
-    }
-    if (typeof done !== "boolean") {
-      done = false;
-    }
-    tasks.push({ name, time_hours, time_minutes, duration, done });
+// const _createTask = async (
+//   name,
+//   time_hours,
+//   time_minutes,
+//   duration,
+//   done = false
+// ) => {
+//   try {
+//     const tasks = await _retrieveTaskList();
+//     if (typeof time_hours !== "number") {
+//       time_hours = 0;
+//     }
+//     if (typeof time_minutes !== "number") {
+//       time_minutes = 0;
+//     }
+//     if (typeof duration !== "number") {
+//       duration = 0;
+//     }
+//     if (time_hours < 0 || time_hours > 23) {
+//       time_hours = 0;
+//     }
+//     if (time_minutes < 0 || time_minutes > 59) {
+//       time_minutes = 0;
+//     }
+//     if (typeof done !== "boolean") {
+//       done = false;
+//     }
+//     tasks.push({ name, time_hours, time_minutes, duration, done });
 
-    await AsyncStorage.setItem("TASKS", JSON.stringify(tasks));
+//     await AsyncStorage.setItem("TASKS", JSON.stringify(tasks));
 
-    await _sortTaskList();
-  } catch (error) {
-    // Error saving data
-    console.log("_createTask error");
-  }
-};
+//     await _sortTaskList();
+//   } catch (error) {
+//     // Error saving data
+//     console.log("_createTask error");
+//   }
+// };
 
 const _retrieveTaskList = async (fromNewDayStarted = false) => {
   if (!fromNewDayStarted) {
@@ -391,23 +391,219 @@ const _deleteCurrentTaskInfo = async () => {
   }
 };
 
+// refactor:
+const _setNewDay = async () => {
+  try {
+    await AsyncStorage.setItem(
+      "TIME_BLOCKING_APP_DAY",
+      new Date().toISOString().substring(0, 10)
+    );
+  } catch (error) {
+    // Error saving data
+    console.log("_setNewDay error");
+  }
+};
+
+const _isNewDay = async () => {
+  try {
+    const value = await AsyncStorage.getItem("TIME_BLOCKING_APP_DAY");
+    if (typeof value !== undefined && value !== null) {
+      const today = new Date().toISOString().substring(0, 10);
+      return value !== today;
+    } else {
+      return true;
+    }
+  } catch (error) {
+    // Error retrieving data
+    console.log("_isNewDay error");
+  }
+};
+
+const _setTaskList = async (taskList) => {
+  try {
+    await AsyncStorage.setItem(
+      "TIME_BLOCKING_APP_TASKS",
+      JSON.stringify(taskList)
+    );
+  } catch (error) {
+    // Error saving data
+    console.log("_setTaskList error");
+  }
+};
+
+const _getTaskList = async () => {
+  try {
+    const value = await AsyncStorage.getItem("TIME_BLOCKING_APP_TASKS");
+    if (typeof value !== undefined && value !== null) {
+      return JSON.parse(value);
+      // return [
+      //   {
+      //     name: "proof of concept, dbAPI.js 440",
+      //     time_hours: 12,
+      //     time_minutes: 1,
+      //     duration: 5,
+      //     done: false,
+      //   },
+      //   {
+      //     name: "proof of concept 2, dbAPI.js 440",
+      //     time_hours: 12,
+      //     time_minutes: 1,
+      //     duration: 5,
+      //     done: false,
+      //   },
+      // ];
+    } else {
+      return [];
+    }
+  } catch (error) {
+    // Error retrieving data
+    console.log("_getTaskList error");
+  }
+};
+
+const _setRunningTask = async (runningTaskInfo) => {
+  // runningTaskInfo: {index: Int, start_hours: Int, start_minutes: Int} or undefined
+  try {
+    if (typeof runningTaskInfo === "undefined" || runningTaskInfo === null) {
+      await AsyncStorage.removeItem("TIME_BLOCKING_APP_RUNNING_TASK");
+      return;
+    }
+
+    const { index, start_hours, start_minutes } = runningTaskInfo;
+
+    if (
+      typeof index !== "number" ||
+      typeof start_hours !== "number" ||
+      typeof start_minutes !== "number"
+    ) {
+      console.log(JSON.stringify(runningTaskInfo));
+      throw "index, start_hours, and start_minutes must be numbers";
+    }
+    await AsyncStorage.setItem(
+      "TIME_BLOCKING_APP_RUNNING_TASK",
+      JSON.stringify(runningTaskInfo)
+    );
+  } catch (error) {
+    // Error saving data
+    console.log("_setRunningTask error");
+  }
+};
+
+const _getRunningTask = async () => {
+  // returns {index, start_hours, start_minutes} or undefined
+  try {
+    const value = await AsyncStorage.getItem("TIME_BLOCKING_APP_RUNNING_TASK");
+    if (typeof value !== undefined && value !== null) {
+      return JSON.parse(value);
+    } else {
+      return undefined;
+    }
+  } catch (error) {
+    // Error retrieving data
+    console.log("_getRunningTask error");
+  }
+};
+
+// const _createTask = async (
+//   taskList,
+//   name,
+//   time_hours,
+//   time_minutes,
+//   duration,
+//   done = false,
+//   atIndex
+// ) => {
+//   try {
+//     const theTaskList = structuredClone(taskList);
+
+//     theTaskList.splice(atIndex, 0, {
+//       name,
+//       time_hours,
+//       time_minutes,
+//       duration,
+//       done,
+//     });
+
+//     await _setTaskList(theTaskList);
+//   } catch (error) {
+//     // Error saving data
+//     console.log("_createTask error");
+//   }
+// };
+
+const _editTask = async (
+  index,
+  newName,
+  time_hours,
+  time_minutes,
+  duration,
+  done
+) => {
+  try {
+    const tasks = await _retrieveTaskList();
+    if (typeof time_hours !== "number") {
+      time_hours = 0;
+    }
+    if (typeof time_minutes !== "number") {
+      time_minutes = 0;
+    }
+    if (typeof duration !== "number") {
+      duration = 0;
+    }
+    if (time_hours < 0 || time_hours > 23) {
+      time_hours = 0;
+    }
+    if (time_minutes < 0 || time_minutes > 59) {
+      time_minutes = 0;
+    }
+    if (typeof done !== "boolean") {
+      done = false;
+    }
+
+    const myTask = tasks[index];
+    if (typeof myTask !== "undefined" && myTask !== null) {
+      myTask.name = newName;
+      myTask.time_hours = time_hours;
+      myTask.time_minutes = time_minutes;
+      myTask.duration = duration;
+      myTask.done = done;
+    }
+
+    // await _sortTaskList();
+
+    await AsyncStorage.setItem("TASKS", JSON.stringify(tasks));
+  } catch (error) {
+    // Error saving data
+    console.log("_editTask error");
+  }
+};
+
 export {
-  _isDaySet,
-  _setDay,
-  _getDay,
-  _deleteDay,
-  _deleteTask,
-  _getTaskByIndex,
-  _editTask,
-  _createTask,
-  _retrieveTaskList,
-  _deleteTaskList,
-  _sortTaskList,
-  _newDayStarted, // any sense to export this?, called automatically from _retrieveTaskList
-  _getCurrentTask,
-  _getNextTask,
+  // _isDaySet,
+  // _setDay,
+  // _getDay,
+  // _deleteDay,
+  // _deleteTask,
+  // _getTaskByIndex,
+  // // _editTask,
+  // // _createTask,
+  // _retrieveTaskList,
+  // _deleteTaskList,
+  // _sortTaskList,
+  // _newDayStarted, // any sense to export this?, called automatically from _retrieveTaskList
+  // _getCurrentTask,
+  // _getNextTask,
   _toTimeString,
-  _setCurrentTaskInfo,
-  _getCurrentTaskInfo,
-  _deleteCurrentTaskInfo,
+  // _setCurrentTaskInfo,
+  // _getCurrentTaskInfo,
+  // _deleteCurrentTaskInfo,
+  // refactor:
+  _setNewDay,
+  _isNewDay,
+  _setTaskList,
+  _getTaskList,
+  _setRunningTask,
+  _getRunningTask,
+  // _createTask,
+  _editTask,
 };

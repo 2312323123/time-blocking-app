@@ -11,12 +11,12 @@ import {
   Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { _createTask } from "../misc/dbAPI";
+// import { _createTask } from "../misc/dbAPI";
 import { useMyAppState } from "../misc/MyAppProvider";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const TaskCreate = ({ navigation }) => {
-  // rerendering related stuff
-  const { updateDbState } = useMyAppState();
+  const { createTask } = useMyAppState();
 
   // text input stuff
   const [text, setText] = useState("");
@@ -26,11 +26,34 @@ export const TaskCreate = ({ navigation }) => {
   };
 
   // duration input stuff
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState();
 
   const handleDurationInputChange = (number) => {
     setDuration(number);
   };
+
+  useFocusEffect(() => {
+    console.log("TaskCreate focused");
+    // mainLoop();
+
+    // timerRef.current = setInterval(() => {
+    //   if (typeof currentTaskEnd !== "undefined" || currentTaskEnd !== null) {
+    //     if (isRunning) {
+    //       setTimeLeft(parseInt((currentTaskEnd - new Date()) / 1000));
+    //     } else {
+    //       if (!noTasksLeftForToday) {
+    //         setTimeLeft(parseInt((currentTaskStart - new Date()) / 1000));
+    //       }
+    //     }
+    //   }
+    //   mainLoop();
+    // }, 240);
+
+    return () => {
+      console.log("TaskCreate unfocused");
+      // clearInterval(timerRef.current);
+    };
+  });
 
   // date input stuff
   const [date, setDate] = useState(new Date("2023-10-01T12:00:00"));
@@ -54,19 +77,20 @@ export const TaskCreate = ({ navigation }) => {
 
   // creating the task
   const handleSubmit = async () => {
-    // Do something with the input text, for example, send it to an API or perform an action
-    if (text && date && duration) {
-      // console.log("Input Text:", text);
-      // console.log("Input Start time:", date);
-      // console.log("Input Duration:", duration);
-
-      if (duration <= 0) {
+    let parsedDuration = parseInt(duration);
+    if (
+      typeof text !== "undefined" &&
+      text !== "" &&
+      typeof date !== "undefined" &&
+      typeof parsedDuration !== "undefined"
+    ) {
+      if (parsedDuration <= 0) {
         Alert.alert("Duration must be a positive integer");
         return;
       }
 
       const endDate = new Date(date);
-      endDate.setMinutes(endDate.getMinutes() + duration);
+      endDate.setMinutes(endDate.getMinutes() + parsedDuration);
       if (
         date.getDate() !== endDate.getDate() ||
         date.getMonth() !== endDate.getMonth() ||
@@ -76,14 +100,22 @@ export const TaskCreate = ({ navigation }) => {
         return;
       }
 
-      await _createTask(
-        text,
-        date.getHours(),
-        date.getMinutes(),
-        parseInt(duration)
-      );
+      // await _createTask(
+      //   text,
+      //   date.getHours(),
+      //   date.getMinutes(),
+      //   parseInt(duration)
+      // );
 
-      await updateDbState(); // rerendering-related
+      const task = {
+        name: text,
+        time_hours: date.getHours(),
+        time_minutes: date.getMinutes(),
+        duration: parsedDuration,
+        done: false,
+      };
+
+      await createTask(task);
 
       // navigation.navigate("Task List");
       navigation.navigate("Task List", {

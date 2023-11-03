@@ -18,7 +18,7 @@ export const TaskListList = ({ tasklist, navigation }) => {
     <View style={styles.container}>
       <FlatList
         data={tasklist}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(_, index) => index}
         renderItem={({ item, index }) => (
           <TaskItem task={item} index={index} navigation={navigation} />
         )}

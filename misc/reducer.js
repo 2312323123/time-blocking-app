@@ -1,13 +1,12 @@
 export const initialState = {
   alive: false,
-  testVariable: "not hehe",
-  // from refactor:
-  noTasksLeftForToday: false,
-  isRunning: false,
-  dbState: undefined,
-  currentTaskIndex: undefined,
-  currentTaskStart: undefined,
-  currentTaskEnd: undefined,
+  // from another refactor:
+  taskList: undefined, // :Array of Objects
+  noTasksLeftForToday: false, // :Bool
+  isRunning: true, // :Bool
+  currentTaskIndex: undefined, // :Int
+  currentTaskStart: undefined, // :Date
+  currentTaskEnd: undefined, // :Date
 };
 
 export const reducer = (state, action) => {
@@ -84,11 +83,123 @@ export const reducer = (state, action) => {
       };
 
     // newer
-    case "SET_NO_TASKS_LEFT_FOR_TODAY":
+    case "SET_RUNNING_TASK":
       return {
         ...state,
-        noTasksLeftForToday: true,
+        isRunning: true,
+        currentTaskIndex: action.payload.currentTaskIndex,
+        currentTaskStart: action.payload.currentTaskStart,
+        currentTaskEnd: action.payload.currentTaskEnd,
       };
+    case "SET_NEXT_TASK":
+      return {
+        ...state,
+        isRunning: false,
+        currentTaskIndex: action.payload.currentTaskIndex,
+        currentTaskStart: action.payload.currentTaskStart,
+        currentTaskEnd: action.payload.currentTaskEnd,
+      };
+    case "UNSET_RUNNING_TASK":
+      return {
+        ...state,
+        isRunning: false,
+        currentTaskIndex: undefined,
+        currentTaskStart: undefined,
+        currentTaskEnd: undefined,
+      };
+
+    // newest
+    case "INITIAL_LOAD":
+      return {
+        ...state,
+        alive: true,
+        taskList: action.payload.taskList,
+        noTasksLeftForToday: action.payload.noTasksLeftForToday,
+        isRunning: action.payload.isRunning,
+      };
+    case "RUN_TASK":
+      if (action.payload.taskListChanged) {
+        return {
+          ...state,
+          taskList: action.payload.taskList,
+          noTasksLeftForToday: false,
+          isRunning: true,
+        };
+      } else {
+        return {
+          ...state,
+          noTasksLeftForToday: false,
+          isRunning: true,
+        };
+      }
+    case "TASK_FINISHED":
+      return {
+        ...state,
+        taskList: action.payload.taskList,
+        noTasksLeftForToday: action.payload.noTasksLeftForToday,
+        isRunning: action.payload.isRunning,
+      };
+    case "RUN_NEXT_TASK":
+      if (action.payload.movePermanently) {
+        return {
+          ...state,
+          taskList: action.payload.taskList,
+          noTasksLeftForToday: false,
+          isRunning: true,
+        };
+      } else {
+        return {
+          ...state,
+          noTasksLeftForToday: false,
+          isRunning: true,
+        };
+      }
+    case "NEXT_TASK_OBSOLETE":
+      return {
+        ...state,
+        noTasksLeftForToday: action.payload.noTasksLeftForToday,
+        isRunning: action.payload.isRunning,
+      };
+    case "TASK_CREATED":
+      if (action.payload.newNextTask) {
+        return {
+          ...state,
+          taskList: action.payload.taskList,
+          noTasksLeftForToday: false,
+        };
+      } else {
+        return {
+          ...state,
+          taskList: action.payload.taskList,
+        };
+      }
+    case "TASK_EDITED": {
+      const { taskList, isRunning, noTasksLeftForToday } = action.payload;
+
+      return {
+        ...state,
+        taskList,
+        isRunning,
+        noTasksLeftForToday,
+      };
+    }
+    case "TASK_DELETED": {
+      const { taskList, isRunning, noTasksLeftForToday } = action.payload;
+
+      return {
+        ...state,
+        taskList: taskList,
+        isRunning:
+          typeof isRunning !== "undefined" && isRunning !== null
+            ? isRunning
+            : state.isRunning,
+        noTasksLeftForToday:
+          typeof noTasksLeftForToday !== "undefined" &&
+          noTasksLeftForToday !== null
+            ? noTasksLeftForToday
+            : state.noTasksLeftForToday,
+      };
+    }
 
     default:
       return state;
