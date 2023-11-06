@@ -37,21 +37,22 @@ export const MyAppProvider = ({ children }) => {
     }
   };
 
-  const taskFinished = async (callback, index) => {
+  const taskFinished = async (callback: MyCallbackType, index: number) => {
     await _taskFinished(index);
     if (callback) {
       callback();
     }
   };
 
-  const runNextTask = async (callback) => {
-    await _runNextTask(index);
+  type MyCallbackType = () => void;
+  const runNextTask = async (callback: MyCallbackType) => {
+    await _runNextTask(false);
     if (callback) {
       callback();
     }
   };
 
-  const nextTaskObsolete = async (callback) => {
+  const nextTaskObsolete = async (callback: MyCallbackType) => {
     await _nextTaskObsolete();
     if (callback) {
       callback();

@@ -57,7 +57,7 @@ export const NextTaskView = () => {
   //   }
   // }, [currentTaskIndex]);
 
-  timeLeft = 10;
+  const timeLeft = 10;
 
   return (
     <ScrollView>
@@ -67,14 +67,14 @@ export const NextTaskView = () => {
         <View style={styles.container}>
           <Text>Next Task starts in:</Text>
           <View>
-            <CountDown
+            {/* <CountDown
               until={timeLeft}
               onFinish={() => alert("finished")}
               onPress={() => alert("hello")}
               size={40}
               running={false}
               timeToShow={timeLeft > 3600 ? ["H", "M", "S"] : ["M", "S"]}
-            />
+            /> */}
             <Text>timeLeft: {JSON.stringify(timeLeft)}</Text>
             <Text>isRunning: {isRunning.toString()}</Text>
           </View>
@@ -104,7 +104,9 @@ export const NextTaskView = () => {
 
           <Text>parseInt((currentTaskEnd - new Date()) / 1000):</Text>
           <Text>
-            {JSON.stringify(parseInt((currentTaskEnd - new Date()) / 1000))}
+            {JSON.stringify(
+              (currentTaskEnd.getTime() - new Date().getTime()) / 1000
+            )}
           </Text>
         </View>
       </>
@@ -116,7 +118,6 @@ export const NextTaskView = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     flexDirection: "column",
     justifyContent: "space-between",
     margin: 0,

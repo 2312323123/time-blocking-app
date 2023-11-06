@@ -342,21 +342,26 @@ const _setCurrentTaskInfo = async (
 
 const _getCurrentTaskInfo = async () => {
   try {
-    let [index, start_hours, start_minutes, end_hours, end_minutes] =
-      await Promise.all([
-        AsyncStorage.getItem("CURRENT_TASK_INDEX"),
-        AsyncStorage.getItem("CURRENT_TASK_START_HOURS"),
-        AsyncStorage.getItem("CURRENT_TASK_START_MINUTES"),
-        AsyncStorage.getItem("CURRENT_TASK_END_HOURS"),
-        AsyncStorage.getItem("CURRENT_TASK_END_MINUTES"),
-      ]);
+    const [
+      index_string,
+      start_hours_string,
+      start_minutes_string,
+      end_hours_string,
+      end_minutes_string,
+    ] = await Promise.all([
+      AsyncStorage.getItem("CURRENT_TASK_INDEX"),
+      AsyncStorage.getItem("CURRENT_TASK_START_HOURS"),
+      AsyncStorage.getItem("CURRENT_TASK_START_MINUTES"),
+      AsyncStorage.getItem("CURRENT_TASK_END_HOURS"),
+      AsyncStorage.getItem("CURRENT_TASK_END_MINUTES"),
+    ]);
 
-    [index, start_hours, start_minutes, end_hours, end_minutes] = [
-      parseInt(index),
-      parseInt(start_hours),
-      parseInt(start_minutes),
-      parseInt(end_hours),
-      parseInt(end_minutes),
+    const [index, start_hours, start_minutes, end_hours, end_minutes] = [
+      parseInt(index_string),
+      parseInt(start_hours_string),
+      parseInt(start_minutes_string),
+      parseInt(end_hours_string),
+      parseInt(end_minutes_string),
     ];
 
     if (!isNaN(index)) {

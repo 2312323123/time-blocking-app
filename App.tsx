@@ -1,7 +1,6 @@
 import React from "react";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { _retrieveTaskList, _getCurrentTaskInfo } from "./misc/dbAPI";
 import { RunningTask } from "./views/RunningTask";
 import { TaskList } from "./views/TaskList";
 import { TaskCreate } from "./views/TaskCreate";

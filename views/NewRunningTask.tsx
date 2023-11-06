@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useLayoutEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,10 +10,18 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import CountDown from "react-native-countdown-component";
 import { useMyAppState } from "../misc/MyAppProvider";
+import { NextTaskView } from "../components/NextTaskView";
 
-export const NewRunningTaskView = ({ navigation }) => {
+export const NewRunningTask = ({ navigation }) => {
   const {
-    MyAppState,
+    MyAppState: {
+      taskList,
+      noTasksLeftForToday,
+      isRunning,
+      currentTaskIndex,
+      currentTaskStart,
+      currentTaskEnd,
+    },
     dispatch,
     runTask,
     taskFinished,
@@ -23,14 +31,6 @@ export const NewRunningTaskView = ({ navigation }) => {
     updateTask,
     deleteTask,
   } = useMyAppState();
-  const {
-    taskList,
-    noTasksLeftForToday,
-    isRunning,
-    currentTaskIndex,
-    currentTaskStart,
-    currentTaskEnd,
-  } = MyAppState;
 
   const timerRef = useRef(null);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -62,18 +62,16 @@ export const NewRunningTaskView = ({ navigation }) => {
         return;
       } else {
         console.log(
-          `show running screen with ${parseInt(
-            (currentTaskEnd - new Date()) / 1000
-          )} seconds left`,
+          `show running screen with ${
+            (currentTaskEnd.getTime() - new Date().getTime()) / 1000
+          } seconds left`,
           Math.random()
         );
         return;
       }
     }
 
-    console.log("hehe0");
-    if (currentTaskIndex) {
-      console.log("hehe1");
+    if (typeof currentTaskIndex === "number") {
       if (currentTaskEnd > new Date()) {
         if (currentTaskStart < new Date()) {
           runTask(null, currentTaskIndex, false);
@@ -85,6 +83,9 @@ export const NewRunningTaskView = ({ navigation }) => {
     }
 
     console.log("error");
+    console.log("noTasksLeftForToday:", noTasksLeftForToday);
+    console.log("isRunning:", isRunning);
+    console.log("currentTaskIndex:", currentTaskIndex);
   }
 
   // useEffect(() => {
@@ -112,64 +113,78 @@ export const NewRunningTaskView = ({ navigation }) => {
   // ]);
 
   useFocusEffect(() => {
+    console.log("NewRunningTask focused");
     mainLoop();
 
-    timerRef.current = setInterval(() => {
-      if (typeof currentTaskEnd !== "undefined" || currentTaskEnd !== null) {
-        // setTimeLeft(parseInt((currentTaskEnd - new Date()) / 1000));
-      }
-      mainLoop();
-    }, 240);
+    // timerRef.current = setInterval(() => {
+    //   if (typeof currentTaskEnd !== "undefined" || currentTaskEnd !== null) {
+    //     if (isRunning) {
+    //       setTimeLeft(parseInt((currentTaskEnd - new Date()) / 1000));
+    //     } else {
+    //       if (!noTasksLeftForToday) {
+    //         setTimeLeft(parseInt((currentTaskStart - new Date()) / 1000));
+    //       }
+    //     }
+    //   }
+    //   mainLoop();
+    // }, 240);
 
     return () => {
-      clearInterval(timerRef.current);
+      console.log("NewRunningTask unfocused");
+      // clearInterval(timerRef.current);
     };
   });
 
-  return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View>
+  const returnScreen = () => {
+    // return <Text>"hehe"</Text>;
+    if (isRunning) {
+      // to not throw error after change, before switching to different screen
+      // if (
+      //   typeof taskList !== "undefined" &&
+      //   typeof currentTaskIndex !== "undefined" &&
+      //   typeof currentTaskStart !== "undefined" &&
+      //   typeof currentTaskEnd !== "undefined"
+      // )
+      return (
+        <>
+          <Text>Task is running:</Text>
+          {/* <Text>{JSON.stringify(taskList[1])}</Text>
+          <Text>{JSON.stringify(currentTaskIndex)}</Text>
           <CountDown
-            until={timeLeft}
+            until={parseInt((currentTaskEnd - new Date()) / 1000)}
             onFinish={() => alert("finished")}
             onPress={() => alert("hello")}
             size={40}
             running={false}
-            timeToShow={timeLeft > 3600 ? ["H", "M", "S"] : ["M", "S"]}
+            timeToShow={
+              parseInt((currentTaskEnd - new Date()) / 1000) > 3600
+                ? ["H", "M", "S"]
+                : ["M", "S"]
+            }
           />
-          {/* <Text>timeLeft: {JSON.stringify(state.timeLeft)}</Text>
-        <Text>noTasksLeft: {state.noTasksLeft.toString()}</Text>
-        <Text>isRunning: {isRunning.toString()}</Text> */}
-        </View>
+          <Text>
+            timeLeft:{" "}
+            {JSON.stringify(parseInt((currentTaskEnd - new Date()) / 1000))}
+          </Text>
+          <Text>noTasksLeft: {noTasksLeftForToday.toString()}</Text>
+          <Text>isRunning: {isRunning.toString()}</Text>
+          <Text>Task start: {JSON.stringify(currentTaskStart)}</Text>
+          <Text>Task end: {JSON.stringify(currentTaskEnd)}</Text> */}
+        </>
+      );
+    } else {
+      if (!noTasksLeftForToday) {
+        return <NextTaskView timeLeft={timeLeft} />;
+      } else {
+        return <Text>noTasksLeft</Text>;
+      }
+    }
+  };
 
-        <Button title="console log" onPress={() => console.log("hello")} />
-
-        <Text>taskList:</Text>
-        <Text>{JSON.stringify(taskList)}</Text>
-
-        <Text>noTasksLeftForToday:</Text>
-        <Text>{JSON.stringify(noTasksLeftForToday)}</Text>
-
-        <Text>isRunning:</Text>
-        <Text>{JSON.stringify(isRunning)}</Text>
-
-        <Text>currentTaskIndex:</Text>
-        <Text>{JSON.stringify(currentTaskIndex)}</Text>
-
-        <Text>currentTaskStart:</Text>
-        <Text>{JSON.stringify(currentTaskStart)}</Text>
-
-        <Text>currentTaskEnd:</Text>
-        <Text>{JSON.stringify(currentTaskEnd)}</Text>
-
-        <Text>new Date():</Text>
-        <Text>{JSON.stringify(new Date())}</Text>
-
-        <Text>parseInt((currentTaskEnd - new Date()) / 1000):</Text>
-        <Text>
-          {JSON.stringify(parseInt((currentTaskEnd - new Date()) / 1000))}
-        </Text>
+  return (
+    <ScrollView>
+      <View style={styles.container}>
+        {returnScreen()}
 
         <TouchableOpacity
           style={styles.taskListButton}
@@ -185,11 +200,10 @@ export const NewRunningTaskView = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    flexDirection: "column",
-    justifyContent: "space-between",
     margin: 0,
     padding: 0,
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
   taskListButton: {
     backgroundColor: "#1a73e8",

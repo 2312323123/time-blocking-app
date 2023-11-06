@@ -157,7 +157,7 @@ export const TaskCreate = ({ navigation }) => {
         value={duration ? duration.toString() : ""}
       />
 
-      <Button style={styles.submit} title="Create" onPress={handleSubmit} />
+      <Button title="Create" onPress={handleSubmit} />
       {show && (
         <DateTimePicker
           testID="dateTimePicker"

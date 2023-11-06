@@ -54,7 +54,7 @@ export const RunningTask = ({ navigation }) => {
       new Date() < currentTaskEnd
     ) {
       const now = new Date();
-      const timeLeft = parseInt((currentTaskEnd - now) / 1000);
+      const timeLeft = (currentTaskEnd.getTime() - now.getTime()) / 1000;
 
       setState({ ...state, timeLeft: timeLeft });
     } else if (
@@ -125,6 +125,11 @@ export const RunningTask = ({ navigation }) => {
     }
   };
 
+  const [state, setState] = React.useState({
+    timeLeft: 0,
+    noTasksLeft: false,
+  });
+
   React.useEffect(() => {
     async function DoAsyncStuff() {
       // intervalRef.current = setInterval(mainLoop, 1000);
@@ -144,11 +149,6 @@ export const RunningTask = ({ navigation }) => {
     currentTaskEnd,
     taskList,
   ]);
-
-  const [state, setState] = React.useState({
-    timeLeft: 0,
-    noTasksLeft: false,
-  });
 
   return (
     <View style={styles.container}>
@@ -180,7 +180,6 @@ export const RunningTask = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     flexDirection: "column",
     justifyContent: "space-between",
     margin: 0,

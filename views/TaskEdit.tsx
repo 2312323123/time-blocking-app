@@ -11,12 +11,6 @@ import {
   Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import {
-  // _editTask,
-  _getTaskByIndex,
-  // _deleteTask,
-  _deleteCurrentTaskInfo,
-} from "../misc/dbAPI";
 import { useMyAppState } from "../misc/MyAppProvider";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useFocusEffect } from "@react-navigation/native";

@@ -9,6 +9,7 @@ import {
 } from "./dbAPI";
 import { Alert } from "react-native";
 import { initialState, reducer } from "./reducer";
+import { Task } from "../interfaces/SharedInterfaces";
 
 /*
 taskList format: [{ name, time_hours, time_minutes, duration, done }, ...]
@@ -38,7 +39,7 @@ reducer variables:
 export const useMyAppProviderMethods = () => {
   const [MyAppState, dispatch] = useReducer(reducer, initialState);
 
-  function getCurrentTask(tasks) {
+  function getCurrentTask(tasks: Array<Task>) {
     const now = new Date();
     const compareStart = new Date();
     const compareEnd = new Date();
@@ -66,7 +67,7 @@ export const useMyAppProviderMethods = () => {
     }
   }
 
-  function getNextTask(tasks) {
+  function getNextTask(tasks: Array<Task>) {
     // returns undefined if done for the day, otherwise returns the next task
     const now = new Date();
     const compareStart = new Date();
@@ -84,13 +85,13 @@ export const useMyAppProviderMethods = () => {
     }
   }
 
-  function makeTasksNotDoneButDontChangeStateNorDb(tasks) {
+  function makeTasksNotDoneButDontChangeStateNorDb(tasks: Array<Task>) {
     return tasks.map((task) => {
       return { ...task, done: false };
     });
   }
 
-  function lookForNextTaskAndReturnSomeValues(taskList) {
+  function lookForNextTaskAndReturnSomeValues(taskList: Array<Task>) {
     let noTasksLeftForToday,
       couldAutoRun,
       currentTaskIndex,
@@ -185,7 +186,10 @@ export const useMyAppProviderMethods = () => {
     dispatch({ type: "UNSET_RUNNING_TASK" });
   }
 
-  async function _runTask(index, finishCurrentTask) {
+  async function _runTask(
+    index: number,
+    finishCurrentTask: boolean | undefined
+  ) {
     let taskList, currentTaskIndex, currentTaskStart, currentTaskEnd;
     console.log("_runTask has been run\n.");
 
@@ -233,7 +237,7 @@ export const useMyAppProviderMethods = () => {
     }
   }
 
-  async function _taskFinished(index) {
+  async function _taskFinished(index: number) {
     let taskList,
       noTasksLeftForToday,
       couldAutoRun,
@@ -300,7 +304,7 @@ export const useMyAppProviderMethods = () => {
   */
   }
 
-  async function _runNextTask(movePermanently) {
+  async function _runNextTask(movePermanently: boolean) {
     let taskList,
       noTasksLeftForToday,
       isRunning,
@@ -511,7 +515,7 @@ export const useMyAppProviderMethods = () => {
     });
   }
 
-  function calculateInsertionIndex(taskList, task) {
+  function calculateInsertionIndex(taskList: Array<Task>, task: Task) {
     const index = taskList.findIndex((listTask) => {
       return (
         task.time_hours < listTask.time_hours ||
@@ -533,7 +537,7 @@ export const useMyAppProviderMethods = () => {
     time_minutes,
     duration,
     done = false,
-  }) {
+  }: Task) {
     let newNextTask = false;
     let increaseCurrentNextTaskIndex = false;
     let leaveRunningTaskAsIs = false;
@@ -641,7 +645,7 @@ export const useMyAppProviderMethods = () => {
     });
   }
 
-  function isEligible(task) {
+  function isEligible(task: Task) {
     const now = new Date();
     const compareEnd = new Date();
     compareEnd.setHours(
@@ -654,7 +658,7 @@ export const useMyAppProviderMethods = () => {
     return now < compareEnd && !task.done;
   }
 
-  function taskCanBeRunning(task) {
+  function taskCanBeRunning(task: Task) {
     const now = new Date();
     const compareStart = new Date();
     const compareEnd = new Date();
@@ -670,14 +674,10 @@ export const useMyAppProviderMethods = () => {
     return now >= compareStart && now < compareEnd && !task.done;
   }
 
-  async function updateTask({
-    index,
-    newName,
-    time_hours,
-    time_minutes,
-    duration,
-    done,
-  }) {
+  async function updateTask(
+    index: number,
+    { name, time_hours, time_minutes, duration, done }: Task
+  ) {
     let updatedTask, newIndex, taskList;
     let isRunning = MyAppState.isRunning;
 
@@ -701,7 +701,7 @@ export const useMyAppProviderMethods = () => {
     }
 
     updatedTask = {
-      name: newName,
+      name,
       time_hours,
       time_minutes,
       duration,
@@ -778,7 +778,7 @@ export const useMyAppProviderMethods = () => {
     });
   }
 
-  async function deleteTask(index) {
+  async function deleteTask(index: number) {
     const taskList = [...MyAppState.taskList];
     taskList.splice(index, 1);
 
